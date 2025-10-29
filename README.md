@@ -25,6 +25,14 @@ Help pharma researchers, QA specialists, and data scientists quickly find insigh
 4. Display answer in a Streamlit web app  
 
 ---
+## 🖼️ Screenshots
+
+### Streamlit Interface
+<img width="1919" height="939" alt="image" src="https://github.com/user-attachments/assets/1632622c-cb95-443d-9c32-56884a396932" />
+<img width="1919" height="940" alt="image" src="https://github.com/user-attachments/assets/db4f178e-a568-443c-9a92-29549bf6de2b" />
+
+
+
 
 ## 🚀 Run Locally
 
