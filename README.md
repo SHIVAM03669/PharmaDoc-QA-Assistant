@@ -2,6 +2,9 @@
 
 An AI-powered assistant that allows users to query pharmaceutical research documents using Retrieval-Augmented Generation (RAG) and LLMs.
 
+
+Live Link : https://shivam03669-pharmadoc-qa-assistant-appfrontend-ylmqgd.streamlit.app/
+
 ## 🎯 Objective
 Help pharma researchers, QA specialists, and data scientists quickly find insights from drug-related documents using natural language queries.
 
