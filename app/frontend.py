@@ -1,5 +1,11 @@
 import streamlit as st
-import requests
+import os
+import sys
+from dotenv import load_dotenv
+
+# Ensure project root is on PYTHONPATH so `rag` package is importable
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from rag.rag_pipeline import load_qa_chain
 
 # Page configuration
 st.set_page_config(page_title="PharmaDoc QA Assistant 💊", layout="centered")
@@ -29,8 +35,12 @@ st.markdown("""
 st.title("💊 PharmaDoc QA Assistant")
 st.write("Ask domain-specific questions from pharmaceutical research papers")
 
-# API endpoint
-API_URL = "http://127.0.0.1:8000"
+# Load env and cache QA chain locally (no FastAPI needed)
+load_dotenv()
+
+@st.cache_resource(show_spinner=False)
+def get_qa():
+    return load_qa_chain()
 
 # Input section
 st.header("📝 Enter Your Question")
@@ -45,18 +55,21 @@ if st.button("🔍 Ask", type="primary"):
     if query:
         with st.spinner("Searching through pharmaceutical documents..."):
             try:
-                response = requests.post(f"{API_URL}/ask", json={"question": query})
-                if response.status_code == 200:
-                    result = response.json()
-                    if result.get("status") == "success":
-                        st.success("✅ Answer Found!")
-                        st.info(result.get("answer"))
-                    else:
-                        st.error(f"Error: {result.get('error', 'Unknown error occurred')}")
-                else:
-                    st.error(f"API Error: {response.status_code}")
-            except requests.exceptions.ConnectionError:
-                st.error("❌ Could not connect to the backend API. Please make sure uvicorn is running at http://127.0.0.1:8000")
+                qa = get_qa()
+                result = qa.invoke({"query": query})
+                answer = result.get("result") or result.get("answer") or "No answer found."
+                sources = result.get("source_documents") or []
+
+                st.success("✅ Answer Found!")
+                st.info(answer)
+
+                if sources:
+                    with st.expander("📚 Sources"):
+                        for i, doc in enumerate(sources[:3], 1):
+                            meta = getattr(doc, "metadata", {})
+                            st.write(f"[{i}] source={meta.get('source', '<unknown>')} | page={meta.get('page', '<n/a>')}")
+            except Exception as e:
+                st.error(f"Error: {type(e).__name__}: {str(e)}")
     else:
         st.warning("⚠️ Please enter a question first.")
 
@@ -75,4 +88,4 @@ with st.expander("ℹ️ How to use this assistant"):
 
 # Sidebar with configuration
 st.sidebar.title("⚙️ Configuration")
-st.sidebar.info("Backend API running at http://127.0.0.1:8000")
+st.sidebar.info("Running in local Streamlit mode (no FastAPI)")
